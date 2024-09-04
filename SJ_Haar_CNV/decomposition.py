@@ -12,7 +12,7 @@ def decompose (signal, base):
     # Initial set of coefficient
     for wavelet in base:
         # Compute the wavelet coefficients.
-        coefficients.append = signal * wavelet
+        coefficients.append = signal * generate_wavelet_function (wavelet)
     
     #Normalize the coefficients
     coefficients = np.array(coefficients)
@@ -29,16 +29,20 @@ def decompose (signal, base):
     return res
 
 def generate_wavelet_function (wavelet):
-    pass
-
+    """
+    Generate a wavelet function from a wavelet.
+    """
+    wavelet_parts = [np.repeat (v, l) for v, l in wavelet[2:]]
+    return np.concatenate (wavelet_parts)
+ 
 def generate_function_from_wavelets (coefficients, base):
     """
     Generate a function from a set of wavelets.
     """
-    pass
-    #function = np.zeros (len(coefficients[0]))
-    #for i in range (len(coefficients)):
-    #    function += coefficients[i] * base[i]
-    #return function
+    wf = []
+    for c, b in zip(coefficients, base):
+        wf.append (c * generate_wavelet_function (b))
+
+    return np.sum(np.array(wf).reshape (len(wf[0]), len(base)), axis=1)
                               
 
