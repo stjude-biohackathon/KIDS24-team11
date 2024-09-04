@@ -37,9 +37,9 @@ def haar_matrix(s,e,l):
     """
     This creates the matrix of basis vectors caused by iterating all possible break points.
     """
-    matrix = np.zeros((l,l))
-    for b in range(s+1,e):
-        matrix[b] = basis_vector(s,b,e,l)
+    matrix = np.zeros((l-1,l))
+    for i, b in enumerate(range(s+1,e)):
+        matrix[i] = basis_vector(s,b,e,l)
     return matrix
 
 def choose_break(signal,s,e):
@@ -49,6 +49,6 @@ def choose_break(signal,s,e):
     """
     l = signal.size
     matrix = haar_matrix(s,e,l)
-    scores = np.matmul(signal,matrix)
-    best_options = np.argwhere(scores == scores.max()).flatten()
+    scores = np.matmul(matrix,signal)
+    best_options = np.argwhere(scores == np.nanmax(scores)).flatten() + s + 1
     return best_options[np.abs(best_options - l //2).argmin()]
