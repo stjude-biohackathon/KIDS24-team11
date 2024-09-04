@@ -4,9 +4,9 @@ def generate_test_data (cnv_string, noise):
     """
     Generate simple data for testing.
     """
-    cnv = np.concatenate([np.repeat (v, l) for v, l in cnv_string])
-    signal = noise(np.sum([l for _, l in cnv_string]))
-    return signal + noise
+    signal_values = np.concatenate([np.repeat (v, l) for v, l in cnv_string])
+    noise_values = noise(np.sum([l for _, l in cnv_string]))
+    return signal_values + noise_values
 
 def noise (n, s = 2):
     """
