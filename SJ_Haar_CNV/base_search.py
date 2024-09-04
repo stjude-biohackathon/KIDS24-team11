@@ -37,7 +37,7 @@ def haar_matrix(s,e,l):
     """
     This creates the matrix of basis vectors caused by iterating all possible break points.
     """
-    matrix = np.zeros((l-1,l))
+    matrix = np.zeros((e-s-1,l))
     for i, b in enumerate(range(s+1,e)):
         matrix[i] = basis_vector(s,b,e,l)
     return matrix
