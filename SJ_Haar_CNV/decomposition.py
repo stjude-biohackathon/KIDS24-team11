@@ -12,7 +12,7 @@ def decompose (signal, base):
     # Initial set of coefficient
     for wavelet in base:
         # Compute the wavelet coefficients.
-        coefficients.append = signal * generate_wavelet_function (wavelet)
+        coefficients.append(signal * generate_wavelet_function (wavelet))
     
     #Normalize the coefficients
     coefficients = np.array(coefficients)
@@ -43,6 +43,15 @@ def generate_function_from_wavelets (coefficients, base):
     for c, b in zip(coefficients, base):
         wf.append (c * generate_wavelet_function (b))
 
-    return np.sum(np.array(wf).reshape (len(wf[0]), len(base)), axis=1)
+    return np.sum(np.array(wf), axis=1)
                               
+def test ():
+    SA = np.sqrt (1/(250 - 0) - 1/(1000 - 0 + 1))
+    SB = np.sqrt (1/(1000 - 250) - 1/(1000 - 0 + 1))
+    base = [[0,0,(0,0),  (10,1000),(0,0),(0,0)],
+            [1,0,(0,0),  (SA,250), (SB, 750), (0,0)]]
 
+    coefficients = [1, 10]
+
+    res = decompose (generate_function_from_wavelets (coefficients, base), base)
+    return res.x - np.array (coefficients)
