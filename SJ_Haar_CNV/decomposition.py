@@ -45,7 +45,7 @@ def generate_function_from_wavelets (coefficients, base):
 
     return np.sum(np.array(wf), axis=1)
                               
-def test ():
+def test_decompose ():
     SA = np.sqrt (1/(250 - 0) - 1/(1000 - 0 + 1))
     SB = np.sqrt (1/(1000 - 250) - 1/(1000 - 0 + 1))
     base = [[0,0,(0,0),  (10,1000),(0,0),(0,0)],
@@ -55,3 +55,10 @@ def test ():
 
     res = decompose (generate_function_from_wavelets (coefficients, base), base)
     return res.x - np.array (coefficients)
+
+def generate_output (coefficients, base):
+    """
+    Generate the output function from the truncated coefficients and the base.
+    """
+    
+    pass
