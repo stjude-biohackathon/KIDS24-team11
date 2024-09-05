@@ -81,7 +81,7 @@ def generate_haar_basis(signal, p0 = .95, length = 20, debug=False):
     s = 0
     e = signal.size
     
-    done = []
+    done = [[0,0,0,(signal.mean(),len(signal)),(0,0)]]
     todo = [(0, s,e)]
     while len(todo) > 0:
         depth, s,e = todo.pop(0)
