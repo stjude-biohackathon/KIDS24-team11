@@ -1,6 +1,7 @@
 import numpy as np
 from scipy import stats
 from typing import Tuple, List
+import matplotlib.pyplot as plt
 
 def generate_diploid_signal(length: int, noise_std: float = 0.1) -> np.ndarray:
     """
@@ -51,6 +52,47 @@ def segment_signal(signal: np.ndarray, window_size: int = 100) -> List[Tuple[flo
         for i in range(0, len(signal) - window_size + 1, window_size)
     ]
 
+
+def visualize_signal(signal: np.ndarray, title: str):
+    """
+    Visualize the signal using dots with a restricted reference line.
+    
+    Args:
+    signal (np.ndarray): The signal to visualize.
+    title (str): The title for the plot.
+    """
+    plt.figure(figsize=(12, 6))
+    plt.scatter(range(len(signal)), signal, s=1, alpha=0.5)  # s=1 for small dots, alpha=0.5 for transparency
+    
+    # Add a red dashed line at y=2, limited to the x-range of the data
+    plt.hlines(y=2, xmin=0, xmax=len(signal)-1, colors='r', linestyles='--')
+    
+    plt.title(title)
+    plt.xlabel('Position')
+    plt.ylabel('Copy Number')
+    plt.ylim(0, 3)
+    plt.xlim(0, len(signal)-1)  # Ensure x-axis limits match the data range
+    plt.show()
+
+
+def visualize_segments(segments: List[Tuple[float, float]], title: str):
+    """
+    Visualize the segmented signal.
+    
+    Args:
+    segments (List[Tuple[float, float]]): List of (mean, std) tuples for each segment.
+    title (str): The title for the plot.
+    """
+    means, stds = zip(*segments)
+    plt.figure(figsize=(12, 6))
+    plt.errorbar(range(len(means)), means, yerr=stds, fmt='o', markersize=2, capsize=3)
+    plt.axhline(y=2, color='r', linestyle='--')
+    plt.title(title)
+    plt.xlabel('Segment')
+    plt.ylabel('Mean Copy Number')
+    plt.ylim(0, 3)
+    plt.show()
+
 def test_case_1(signal: np.ndarray, window_size: int = 100, noise_std: float = 0.1) -> bool:
     """
     Comprehensive test case for diploid signal analysis.
@@ -91,11 +133,17 @@ def test_case_1(signal: np.ndarray, window_size: int = 100, noise_std: float = 0
 # Test with diploid data
 print("Testing with diploid data:")
 diploid_signal = generate_diploid_signal(10000, 0.1)
+visualize_signal(diploid_signal, "Diploid Signal")
+diploid_segments = segment_signal(diploid_signal)
+visualize_segments(diploid_segments, "Segmented Diploid Signal")
 diploid_result = test_case_1(diploid_signal)
 print(f"Overall test {'Passed' if diploid_result else 'Failed'} for diploid data\n")
 
 # Test with data containing a deletion
 print("Testing with data containing a deletion:")
 deletion_signal = generate_signal_with_deletion(10000, 3000, 7000, 0.1)
+visualize_signal(deletion_signal, "Signal with Deletion")
+deletion_segments = segment_signal(deletion_signal)
+visualize_segments(deletion_segments, "Segmented Signal with Deletion")
 deletion_result = test_case_1(deletion_signal)
 print(f"Overall test {'Passed' if deletion_result else 'Failed'} for data with deletion")
