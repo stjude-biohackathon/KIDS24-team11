@@ -34,7 +34,7 @@ def haar_matrix(s,e):
         matrix[i,:] = basis_vector(s,b,e)
     return matrix
 
-def choose_break(signal,s,e,p0 = .95, debug=False):
+def choose_break(signal,s,e,p0 = .80, debug=False):
     """
     This function chooses the best break point for the signal between s and e.
     It resolves ties by selecting the break point closest to the center of the signal.
@@ -43,8 +43,10 @@ def choose_break(signal,s,e,p0 = .95, debug=False):
         raise ValueError("p0 must be between [.5,1).")
     offset = int((e-s)*(1-p0))
     matrix = haar_matrix(s,e)
-    scores = np.abs(np.matmul(matrix[offset:matrix.shape[0]-offset],signal[s:e]))
-    best_options = np.argwhere(scores == np.nanmax(scores)).flatten() + 1 + offset
+    #scores = np.abs(np.matmul(matrix[offset:matrix.shape[0]-offset],signal[s:e]))
+    scores = np.abs(np.matmul(matrix,signal[s:e]))
+    trunc_scores = scores[int((1-p0)*len(scores)):int(p0*len(scores))]
+    best_options = np.argwhere(trunc_scores == np.nanmax(trunc_scores)).flatten() + 1 + s + int((1-p0)*len(scores))
     solution = best_options[np.abs(best_options - signal.size //2).argmin()]
     if debug:
         return offset, matrix, scores, best_options, solution, matrix[solution - 1 - offset]
@@ -58,7 +60,7 @@ def create_basis_form(s,b,e):
     """
     high = haar_high(s,b,e)
     low = haar_low(s,b,e)
-    return [0,0, s,(high,b),(low,e-s-b)]
+    return [0,0, s,(high,b),(low,e-b)]
 
     
 def generate_haar_basis(signal, p0 = .95, length = 20, debug=False):
@@ -73,7 +75,7 @@ def generate_haar_basis(signal, p0 = .95, length = 20, debug=False):
         raise ValueError("Depth must be an integer or a function.")
     
     if not (.5 <= p0 < 1):
-        raise ValueError("p0 must be between [.5,1).")
+        raise ValueError("p0 must be in [.5,1).")
     
     d = max(d,2)
     s = 0
@@ -92,7 +94,7 @@ def generate_haar_basis(signal, p0 = .95, length = 20, debug=False):
                 done.append(solution)
                 todo.append((s,break_point))
                 todo.append((break_point+1,e))
-
+        print (todo)
     return done
 
 # def recursive_basis_generation(signal, s, e, d, p0=.95, debug=False):
