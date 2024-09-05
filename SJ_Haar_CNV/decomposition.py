@@ -3,34 +3,46 @@ import numpy as np
 import scipy.optimize as opt
 
 
-def decompose (signal, base):
+def haar_basis(signal,base):
+    res = np.zeros((len(base),len(signal)))
+    for i, wavelet in enumerate(base):
+        res[i,wavelet[2]:wavelet[2]+wavelet[3][1]+wavelet[4][1]] = generate_wavelet_function(wavelet)
+    return res
+    
+
+def decompose (signal, base, perc_threshold = .1):
     """
     Decompose the signal into a set of wavelets.
     """
     
-    coefficients = []
-    # Initial set of coefficient
+    # coefficients = []
+    # # Initial set of coefficient
     
-    for wavelet in base:
-        # Compute the wavelet coefficients.
-        full_wavelet = np.zeros (len(signal))
-        full_wavelet[wavelet[2]:wavelet[2]+wavelet[3][1]+wavelet[4][1]] = generate_wavelet_function (wavelet)
-        coefficients.append((signal * full_wavelet).sum())
+    # for wavelet in base:
+    #     # Compute the wavelet coefficients.
+    #     full_wavelet = np.zeros (len(signal))
+    #     full_wavelet[wavelet[2]:wavelet[2]+wavelet[3][1]+wavelet[4][1]] = generate_wavelet_function (wavelet)
+    #     coefficients.append((signal * full_wavelet).sum())
+    basis = haar_basis(signal,base)
+    coefficients = np.matmul(basis,signal)
+    normalized_coefficients = coefficients / coefficients.sum()
+    drop = np.argwhere(np.abs(normalized_coefficients) >= perc_threshold).flatten()
+    unneccessary_remove_later = coefficients.copy()
+    coefficients[drop] = 0
     
     #Normalize the coefficients
     
-    coefficients = np.array(coefficients)
-    coefficients = coefficients / np.sum(coefficients)
+    # coefficients = coefficients / coefficients.sum()
 
-    def difference (coefficients, signal, base, difference_transformation = lambda x: np.abs(x)):
-        """
-        Compute the difference between the signal and the sum of wavelets.
-        """
-        return np.sum (difference_transformation(signal - generate_function_from_wavelets (coefficients, base)))
+    # def difference (coefficients, signal, base, difference_transformation = lambda x: np.abs(x)):
+    #     """
+    #     Compute the difference between the signal and the sum of wavelets.
+    #     """
+    #     return np.sum (difference_transformation(signal - generate_function_from_wavelets (coefficients, base)))
     
-    res = opt.minimize (difference, coefficients, args=(signal, base))
+    # res = opt.minimize (difference, coefficients, args=(signal, base))
 
-    return res
+    return basis, coefficients, unneccessary_remove_later, np.matmul(coefficients,basis)
 
 def generate_wavelet_function (wavelet):
     """
