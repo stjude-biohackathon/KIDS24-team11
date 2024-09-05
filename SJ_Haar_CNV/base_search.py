@@ -60,7 +60,7 @@ def create_basis_form(s,b,e):
     """
     high = haar_high(s,b,e)
     low = haar_low(s,b,e)
-    return [0,0, s,(high,b),(low,e-b)]
+    return [0,e-s, s,(high, b-s),(low,e-b)]
 
     
 def generate_haar_basis(signal, p0 = .95, length = 20, debug=False):
@@ -82,19 +82,21 @@ def generate_haar_basis(signal, p0 = .95, length = 20, debug=False):
     e = signal.size
     
     done = []
-    todo = [(s,e)]
+    todo = [(0, s,e)]
     while len(todo) > 0:
-        s,e = todo.pop(0)
+        depth, s,e = todo.pop(0)
         if e - s >= d:
             if debug:
                 print(f"todo: {len(todo)}, done: {len(done)}, len signal: {e-s}")
             break_point = choose_break(signal,s,e,p0)
+            if break_point == s or break_point == e:
+                break_point = (s+e)//2
             solution = create_basis_form(s,break_point,e)
+            solution[0] = depth
             if solution not in done:
                 done.append(solution)
-                todo.append((s,break_point))
-                todo.append((break_point+1,e))
-        print (todo)
+                todo.append((depth+1, s,break_point))
+                todo.append((depth+1, break_point+1,e))
     return done
 
 # def recursive_basis_generation(signal, s, e, d, p0=.95, debug=False):
