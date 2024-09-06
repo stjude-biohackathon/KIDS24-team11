@@ -63,7 +63,7 @@ def create_basis_form(s,b,e):
     return [0,e-s, s,(high, b-s),(low,e-b)]
 
     
-def generate_haar_basis(signal, p0 = .95, length = 20, debug=False):
+def generate_haar_basis(signal, p0 = .95, length = 20, debug=False, depth_limit = None):
     """
     This function generates the haar basis for the signal.
     """
@@ -85,6 +85,8 @@ def generate_haar_basis(signal, p0 = .95, length = 20, debug=False):
     todo = [(0, s,e)]
     while len(todo) > 0:
         depth, s,e = todo.pop(0)
+        if depth_limit is not None and depth >= depth_limit:
+            continue
         if e - s >= d:
             if debug:
                 print(f"todo: {len(todo)}, done: {len(done)}, len signal: {e-s}")
