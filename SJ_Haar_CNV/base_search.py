@@ -96,7 +96,7 @@ def generate_haar_basis(signal, p0 = .95, length = 20, debug=False):
             if solution not in done:
                 done.append(solution)
                 todo.append((depth+1, s,break_point))
-                todo.append((depth+1, break_point+1,e))
+                todo.append((depth+1, break_point,e))
     return done
 
 # def recursive_basis_generation(signal, s, e, d, p0=.95, debug=False):
