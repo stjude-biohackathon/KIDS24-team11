@@ -8,16 +8,16 @@ def add_noise(fig, df):
     fig.add_trace(go.Scatter(x=x, y=y, name='Smoothed Noise', fill='toself', line = dict(color='rgba(0,0,0,0)'), fillcolor='rgba(255,0,0,0.2)'))
     return fig
 
-def visualize_data(df, markers = dict(size=5, opacity=0.75), noise_settings = {'window': 100, 'polyorder': 3}):
+def visualize_data(df, markers = dict(size=5, opacity=0.75), noise_settings = {'window': 100, 'polyorder': 3}, line = dict(color='red')):
     if 'location' not in df.columns:
         df['location'] = np.arange(len(df))
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=df['location'], y=df['raw'], name='Raw Signal', mode='markers',marker=markers))
-    fig.add_trace(go.Scatter(x=df['location'], y=df['transformed'], name='Transformed Signal'))
     if 'noise' not in df.columns:
         df['noise'] = sgf(abs(df['transformed'] - df['raw']), noise_settings['window'], noise_settings['polyorder'])
-        
     fig = add_noise(fig, df)
+    fig.add_trace(go.Scatter(x=df['location'], y=df['transformed'], name='Transformed Signal', line=line))
+        
     
     return fig
         
