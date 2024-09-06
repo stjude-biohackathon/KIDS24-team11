@@ -1,1 +1,3 @@
 workspace/*
+*cpython*
+*/__pycache__/
