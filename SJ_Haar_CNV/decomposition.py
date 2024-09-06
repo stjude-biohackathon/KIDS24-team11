@@ -85,6 +85,8 @@ def generate_output (coefficients, base):
     
     pass
 
+def rle_to_array(rle):
+    return np.concatenate([np.repeat(k,v) for k,v in rle])
 
 # import numpy as np
 # import scipy.optimize as opt
