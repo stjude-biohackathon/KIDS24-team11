@@ -10,39 +10,43 @@ def haar_basis(l,base):
     return res
     
 
-def decompose (signal, base, perc_threshold = .1):
+def decompose (signal, base, threshold = None, k = 1.4826):
     """
     Decompose the signal into a set of wavelets.
     """
     
-    # coefficients = []
-    # # Initial set of coefficient
     
-    # for wavelet in base:
-    #     # Compute the wavelet coefficients.
-    #     full_wavelet = np.zeros (len(signal))
-    #     full_wavelet[wavelet[2]:wavelet[2]+wavelet[3][1]+wavelet[4][1]] = generate_wavelet_function (wavelet)
-    #     coefficients.append((signal * full_wavelet).sum())
+    if threshold is None:
+        threshold = estimate_threshold (signal, k)
+    
     basis = haar_basis(len(signal),base)
     coefficients = np.matmul(basis,signal)
-    normalized_coefficients = coefficients / coefficients.sum()
-    drop = np.argwhere(np.abs(normalized_coefficients) >= perc_threshold).flatten()
-    unneccessary_remove_later = coefficients.copy()
-    coefficients[drop] = 0
+    #normalized_coefficients = coefficients / coefficients.sum()
+    drop = np.argwhere(np.abs(coefficients) < threshold).flatten()
+    coefficients[0] = 1.0
+    all_coefficients = coefficients.copy()
+    coefficients[drop] = 0.0
+    y = generate_function_from_wavelets (coefficients, base,len(signal))
     
-    #Normalize the coefficients
-    
-    # coefficients = coefficients / coefficients.sum()
+    return basis, coefficients, all_coefficients, threshold, rle(y)
 
-    # def difference (coefficients, signal, base, difference_transformation = lambda x: np.abs(x)):
-    #     """
-    #     Compute the difference between the signal and the sum of wavelets.
-    #     """
-    #     return np.sum (difference_transformation(signal - generate_function_from_wavelets (coefficients, base)))
-    
-    # res = opt.minimize (difference, coefficients, args=(signal, base))
+def rle(s):
+    counts = {}
+    for c in s:
+        if counts.get(c) is None:
+            counts[c] = 1
+        else:
+            counts[c] = counts[c] + 1
+    return [(k,counts[k]) for k in counts.keys()]
 
-    return basis, coefficients, unneccessary_remove_later, np.matmul(coefficients,basis)
+
+
+def estimate_threshold (X, k = 1.4826):
+    d = np.abs(X[1:]-X[:-1])/np.sqrt(2)
+    MAD = np.median(d)
+    sigma = k*MAD
+    thr = sigma*np.sqrt(2*np.log(len(X)))
+    return thr
 
 def generate_wavelet_function (wavelet):
     """
